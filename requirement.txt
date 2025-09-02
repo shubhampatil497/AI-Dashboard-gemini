@@ -1,0 +1,13 @@
+langgraph
+langchain
+python-dotenv
+ipykernel
+langchain-groq
+langchain_community
+langchain-text-splitters
+streamlit==1.47.1
+google-cloud-bigquery
+langchain-google-genai
+db-dtypes
+gtts
+gTTS pygame
