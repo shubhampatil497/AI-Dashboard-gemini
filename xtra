@@ -1,0 +1,137 @@
+hints = []
+user_q_lower = user_question.lower()
+
+# ---------------- GROUPED BUSINESS QUESTIONS ----------------
+
+# Revenue Realisation Rate
+if "net collection rate" in user_q_lower:
+    hints.append("Net Collection Rate = (Payments - Refunds - Takebacks) / (Charges - Contractual Adjustments)")
+
+if "gross collection rate" in user_q_lower:
+    hints.append("Gross Collection Rate = Payments / Charges")
+
+# Denial Patterns
+if "denial rate" in user_q_lower:
+    hints.append("Denial Rate = Denied Charges / Total Charges")
+
+if "denials dollars distribution" in user_q_lower:
+    hints.append("Distribution of denial dollars by category, payer, or reason code")
+
+if "denials by category" in user_q_lower:
+    hints.append("Denials grouped by master_category, category, or sub_category")
+
+if "denial conversion" in user_q_lower:
+    hints.append("Denial Conversion = Paid Denial Dollars / Total Denial Dollars")
+
+# AR Summary
+if "account receivable distribution" in user_q_lower:
+    hints.append("AR Distribution = AR Dollars bucketed by age (0-30, 31-60, 61-90, 91+)")
+
+if "days in ar" in user_q_lower:
+    hints.append("Days in AR (DAR) = AR Dollars / Avg Daily Charges")
+
+if "inventory liquidation ratio" in user_q_lower:
+    hints.append("Inventory Liquidation Ratio = Payments / (Payments + AR Ending Balance)")
+
+# Billing Cycle Efficiency
+if "unbilled amount" in user_q_lower:
+    hints.append("Unbilled = Charges not yet billed to payers")
+
+if "charges lag" in user_q_lower:
+    hints.append("Charge Lag = Posting Date - Date of Service")
+
+if "payor response" in user_q_lower or "payer response" in user_q_lower:
+    hints.append("Payer Response = Count of responses received from payers (e.g., accept, deny, pend)")
+
+# Revenue and Reimbursement
+if "charges, payments and visits" in user_q_lower:
+    hints.append("Revenue Breakdown = Total Charges vs Total Payments vs Number of Visits")
+
+if "charge mix" in user_q_lower or "payer mix" in user_q_lower:
+    hints.append("Mix analysis by payer type (Commercial, Medicare, Medicaid, Self-pay)")
+
+if "payment distribution" in user_q_lower:
+    hints.append("Distribution of payments across payer, location, or service line")
+
+if "service mix" in user_q_lower:
+    hints.append("Service Mix = Revenue contribution by service lines / specialties")
+
+
+# ---------------- TABLE-SPECIFIC HINTS ----------------
+
+if "denial" in user_q_lower:
+    hints.append("""
+    Table: Denial_codes
+    - Stores denial reasons and categories
+    - Key columns: reason_code, category, sub_category, master_category, denial_non_denial
+    """)
+
+if "ar" in user_q_lower or "account receivable" in user_q_lower:
+    hints.append("""
+    Table: Agg_AR
+    - Stores Accounts Receivable balances
+    - Key columns: time_code, charge_id, payer_finclass, location_name, month, total_chg, ar_dollars
+    - Use SUM(AR_Dollars) for AR totals
+    """)
+
+if "transaction" in user_q_lower or "payment" in user_q_lower:
+    hints.append("""
+    Table: Transaction_table
+    - Stores payment and adjustment details
+    - Key columns: transaction_id, charge_id, payment_amount, adjustment_amount, transaction_date
+    - Use SUM(payment_amount) for total payments
+    """)
+
+if "charge" in user_q_lower:
+    hints.append("""
+    Table: Charges
+    - Stores patient charge details
+    - Key columns: charge_id, patient_id, charge_date, total_chg, charge_lag
+    - Use SUM(total_chg) for total charges
+    """)
+
+if "patient" in user_q_lower or "encounter" in user_q_lower:
+    hints.append("""
+    Table: Patient_Enc
+    - Stores patient encounter information
+    - Key columns: patient_id, encounter_id, admit_date, discharge_date, visit_type
+    """)
+
+if "unbilled" in user_q_lower:
+    hints.append("""
+    Table: T_Agg_UnbilledAr_28_desa
+    - Stores unbilled AR details
+    - Key columns: time_code, location_name, payer_finclass, total_art
+    - Use SUM(total_art) for unbilled AR
+    """)
+
+if "payer response" in user_q_lower or "payor response" in user_q_lower:
+    hints.append("""
+    Table: T_Agg_Payer_Response_20_demo
+    - Stores payer response counts
+    - Key columns: payer_id, payer_name, pr_count, response_date
+    - Use SUM(pr_count) for total responses
+    """)
+
+if "dar" in user_q_lower or "days in ar" in user_q_lower:
+    hints.append("""
+    Table: T_Agg_dar_20_demo
+    - Stores Days in AR trend data
+    - Key columns: time_code, ar_dollars, avg_daily_charges
+    - DAR = (AR Dollars / Avg Daily Charges)
+    """)
+
+if "denial" in user_q_lower or "post date denial" in user_q_lower:
+    hints.append("""
+    Table: Agg_Denials_Postdt_20_desc
+    - Stores post-date denial details
+    - Key columns: denial_id, denial_dollars, denied_encounters, denial_date
+    - Use SUM(denial_dollars) for total denied amount
+    """)
+
+if "dos" in user_q_lower and "denial" in user_q_lower:
+    hints.append("""
+    Table: T_Agg_Denials_Dos_2_8_demo
+    - Stores denial details at Date-of-Service level
+    - Key columns: dos_date, reason_code, denied_dollars, denied_encounters
+    """)
